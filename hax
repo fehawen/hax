@@ -1,0 +1,767 @@
+#!/bin/sh
+
+# shellcheck disable=SC1090,SC2154
+
+die() {
+    printf '\033[1m%s\033[m\n' "$@"
+    exit 1
+}
+
+parse_color() {
+    printf '%s' "${1#\#*}"
+}
+
+generate_xinit() {
+xinit_conf="$(cat << CONF
+#!/bin/sh
+
+[ -f "$HOME/.Xresources" ] && xrdb -merge "$HOME/.Xresources"
+
+setxkbmap -layout $kbdl
+
+xsetroot -solid "$color0"
+
+i3
+
+hax
+
+CONF
+)"
+
+    printf '%s' "$xinit_conf" > "$HOME/.xinitrc"
+}
+
+generate_xresources() {
+xres_conf="$(cat << CONF
+Xft.autohint: 0
+Xft.lcdfilter: lcddefault
+Xft.hintstyle: hintfull
+Xft.hinting: 1
+Xft.antialias: 1
+Xft.rgba: rgb
+*font: xft:$tpfc:pixelsize=$tpsz
+*background: $color0
+*foreground: $color7
+*cursorColor: $color7
+*color0:  $color0
+*color8:  $color8
+*color1:  $color1
+*color9:  $color9
+*color2:  $color2
+*color10: $color10
+*color3:  $color3
+*color11: $color11
+*color4:  $color4
+*color12: $color12
+*color5:  $color5
+*color13: $color13
+*color6:  $color6
+*color14: $color14
+*color7:  $color7
+*color15: $color15
+CONF
+)"
+
+    printf '%s' "$xres_conf" > "$HOME/.Xresources"
+}
+
+generate_kitty() {
+kitty_conf="$(cat << CONF
+background_opacity 1.00
+font_family $tpfc
+font_size $tpsz.0
+term xterm-kitty
+macos_option_as_alt no
+input_delay 3
+sync_to_monitor yes
+mouse_hide_wait 5.0
+cursor_shape block
+cursor_blink_interval      0
+cursor_stop_blinking_after 10.0
+url_style single
+open_url_modifiers ctrl+shift
+open_url_with default
+copy_on_select no
+select_by_word_characters :@-./_~?&=%+#
+scrollback_lines 2000
+window_margin_width 44.0
+hide_window_decorations yes
+dynamic_background_opacity no
+dim_opacity 0.75
+clear_all_shortcuts yes
+kitty_mod alt
+map kitty_mod+v               paste_from_clipboard
+map kitty_mod+c               copy_to_clipboard
+background   $color0
+foreground   $color7
+cursor       $color7
+color0       $color0
+color8       $color8
+color1       $color1
+color9       $color1
+color2       $color2
+color10      $color2
+color3       $color3
+color11      $color3
+color4       $color4
+color12      $color4
+color5       $color5
+color13      $color5
+color6       $color5
+color14      $color5
+color7       $color7
+color15      $color7
+CONF
+)"
+
+    kitty_dir="$HOME/.config/kitty"
+    mkdir -pv "$kitty_dir" || die "Failed to create $kitty_dir"
+    printf '%s' "$kitty_conf" > "$kitty_dir/kitty.conf"
+}
+
+generate_polybar() {
+    wm_padding_x=598
+    screen_width="$(xrandr --listmonitors | grep \+ | awk '{print $3}' | cut -d/ -f1)"
+    polybar_width="$((screen_width - wm_padding_x * 2))"
+    active_monitor="$(xrandr --listmonitors | grep \+ | awk '{print $NF}')"
+    internal_monitor="$(xrandr | grep "primary" | awk '{print $1}')"
+
+polybar_conf="$(cat << CONF
+[global/wm]
+    margin-top = 0
+    margin-bottom = 0
+
+[settings]
+    throttle-output = 5
+    throttle-output-for = 10
+    throttle-input-for = 30
+
+[bar/slim]
+    monitor = $active_monitor
+    monitor-fallback = $internal_monitor
+    fixed-center = true
+    override-redirect = true
+    wm-restack = i3
+
+    dpi-x = 0
+    dpi-y = 0
+
+    offset-y = 24
+
+    height = 48
+
+    background = $color0
+    foreground = $color7
+
+    border-size = 0
+    border-color = $color4
+
+    line-size = 1
+    line-color = $color4
+
+    padding-left = 0
+    padding-right = 0
+
+    module-margin-left = 1
+    module-margin-right = 1
+
+    font-0 = "$tpfc:size=$tpsz;3"
+
+[bar/slim-top]
+    inherit = bar/slim
+    bottom = false
+
+    offset-x = $wm_padding_x
+    width = $polybar_width
+
+    modules-left = i3
+    modules-right = title
+
+[module/i3]
+    type = internal/i3
+    format = <label-state>
+    index-sort = true
+    wrapping-scroll = false
+    enable-click = true
+    pin-workspaces = true
+    strip-wsnumbers = false
+
+    label-focused = %name%
+    label-focused-foreground = $color7
+    label-focused-background = $color0
+    label-focused-underline = $color8
+    label-focused-padding = 2
+
+    label-unfocused = %name%
+    label-unfocused-foreground = $color7
+    label-unfocused-background = $color0
+    label-unfocused-padding = 2
+
+    label-urgent = %name%
+    label-urgent-foreground = $color1
+    label-urgent-background = $color0
+    label-urgent-padding = 2
+
+[module/title]
+    type = internal/xwindow
+
+    format = <label>
+
+    label = %title%
+    label-maxlen = 100
+    label-foreground = $color7
+    label-background = $color0
+    label-underline = $color8
+    label-padding = 2
+
+    label-empty = Empty
+    label-empty-foreground = $color7
+    label-empty-background = $color0
+    label-empty-underline = $color8
+    label-empty-padding = 2
+CONF
+)"
+
+    polybar_dir="$HOME/.config/polybar"
+    mkdir -pv "$polybar_dir" || die "Failed to create $polybar_dir"
+    printf '%s' "$polybar_conf" > "$polybar_dir/config"
+}
+
+generate_conky_base() {
+conky_base_config="$(cat << CONF
+conky.config = {
+    alignment = 'top_$1',
+    background = true,
+    default_color = '$(parse_color "$color7")',
+    color0 = '$(parse_color "$color8")',
+    color1 = '$(parse_color "$color1")',
+    color2 = '$(parse_color "$color2")',
+    color3 = '$(parse_color "$color3")',
+    color4 = '$(parse_color "$color4")',
+    color5 = '$(parse_color "$color5")',
+    color6 = '$(parse_color "$color7")',
+    cpu_avg_samples = 2,
+    diskio_avg_samples = 2,
+    double_buffer = true,
+    font = '$tpfc:size=$tpsz:style=regular',
+    font2 = '$tpfc:size=$tpsz:style=bold',
+    draw_shades = false,
+    draw_outline = false,
+    draw_borders = false,
+    draw_graph_borders = false,
+    border_inner_margin = 0,
+    border_outer_margin = 0,
+    border_width = 0,
+    stippled_borders = 0,
+    pad_percents = 0,
+    gap_x = 24,
+    gap_y = 0,
+    maximum_width = 550,
+    minimum_width = 550,
+    no_buffers = true,
+    out_to_console = false,
+    out_to_ncurses = false,
+    out_to_stderr = false,
+    out_to_x = true,
+    own_window = true,
+    own_window_type = 'override',
+    own_window_transparent = true,
+    update_interval = 1,
+    use_xft = true,
+    uppercase = false,
+}
+CONF
+)"
+    printf '%s' "$conky_base_config"
+}
+
+generate_conky_left() {
+    base_left="$(generate_conky_base "left")"
+
+conky_left="$(cat << CONF
+$base_left
+
+conky.text = [[
+
+# DATE
+\${color}\${alignc}\${font $tpfc:size=28}\${time %a %b %d}\${font}
+\${color0}\${hr}
+
+# SYSTEM
+# USERNAME / HOSTNAME
+\${font2}\${color1}SYSTEM\${font}
+\${color}USERNAME\
+\${alignr}\${color6}\${user_names}
+\${color}HOSTNAME\
+\${alignr}\${color5}\${nodename}
+
+# UPTIME / KERNEL
+\${color}UPTIME\
+\${alignr}\${color3}\${uptime}
+\${color}KERNEL\
+\${alignr}\${color4}\${kernel}
+
+# LAST UPDATED / PACKAGES
+\${color}PACKAGES\
+\${alignr}\${color5}\${execi 3600 sudo pacman -Q | wc -l}
+\${color}UPDATED\
+\${alignr}\${color6}\${execi 3600 ~/.hax/pac.sh}
+
+\${color0}\${hr}
+
+# CONTROLS
+\${font2}\${color1}CONTROLS\${font}
+\${color}BACKLIGHT\
+\${alignr}\${color5}\${exec xbacklight -get | cut -d. -f1}%
+\${color}VOLUME\
+\${alignr}\${color3}\${exec pamixer --get-volume-human}
+
+\${color0}\${hr}
+
+# BATTERY / STATUS
+\${font2}\${color1}BATTERY\${font}
+\${color}PERCENTAGE\
+\${alignr}\${if_match \${battery_percent}>20}\${color2}\${battery_percent}\${else}\${color1}\${battery_percent}\${endif}%
+\${color}STATUS\
+\${alignr}\${color4}\${battery_status}
+
+\${color0}\${hr}
+
+# STORAGE
+\${font2}\${color1}STORAGE\${font}
+\${color}USED /\
+\${alignr}\${color3}\${fs_used /} of \${fs_size /}
+\${color}TYPE /\
+\${alignr}\${color2}\${fs_type /}
+
+\${color0}\${hr}
+
+# MEMORY
+\${font2}\${color1}MEMORY USAGE\${font}
+\${color}SWAP\
+\${alignr}\${color5}\${swap} of \${swapmax}
+\${color}RAM\
+\${alignr}\${color2}\${mem} of \${memmax}
+
+\${color0}\${hr}
+
+# TOP RAM
+\${font2}\${color1}TOP RAM\
+\${alignr}\${color0}PID | NAME | RAM\${font}
+\${color}\${top_mem pid 1}\${goto 105}\${color4}\${top_mem name 1}\${alignr}\${color5}\${top_mem mem 1}%
+\${color}\${top_mem pid 2}\${goto 105}\${color4}\${top_mem name 2}\${alignr}\${color5}\${top_mem mem 2}%
+\${color}\${top_mem pid 3}\${goto 105}\${color4}\${top_mem name 3}\${alignr}\${color5}\${top_mem mem 3}%
+\${color}\${top_mem pid 4}\${goto 105}\${color4}\${top_mem name 4}\${alignr}\${color5}\${top_mem mem 4}%
+\${color}\${top_mem pid 5}\${goto 105}\${color4}\${top_mem name 5}\${alignr}\${color5}\${top_mem mem 5}%
+
+\${color0}\${hr}
+
+]];
+CONF
+)"
+    printf '%s' "$conky_left" > "$1/conky_left.lua"
+}
+
+generate_conky_right() {
+    base_right="$(generate_conky_base "right")"
+
+conky_right="$(cat << CONF
+$base_right
+
+conky.text = [[
+
+# TIME
+\${color}\${alignc}\${font $tpfc:size=28}\${time %H:%M:%S}\${font}
+\${color0}\${hr}
+
+# NETWORK
+\${font2}\${color1}NETWORK STATUS\${font}
+\${color}GATEWAY\
+\${alignr}\${color6}\${gw_iface}
+\${color}GATEWAY IP\
+\${alignr}\${color5}\${gw_ip}
+\${color}MODE\
+\${alignr}\${color4}\${wireless_mode $wrls}
+
+\${color}ACCESS POINT\
+\${alignr}\${color3}\${wireless_ap $wrls}
+\${color}ESSID\
+\${alignr}\${if_match "\${wireless_essid $wrls}"=="off/any"}\${color1}disconnected\${else}\${color2}\${wireless_essid $wrls}\${endif}
+
+\${color}PUBLIC IP\
+\${alignr}\${color6}\${execi 60 curl ipinfo.io/ip}
+\${color}LOCAL IP\
+\${alignr}\${color4}\${addrs $wrls}
+
+\${color0}\${hr}
+
+\${font2}\${color1}NETWORK TRAFFIC\${font}
+\${color}DOWN\
+\${alignr}\${color6}\${downspeedf $wrls} KiB/s (\${totaldown $wrls})
+\${downspeedgraph $wrls 85,550}
+
+\${color}UP\
+\${alignr}\${color6}\${upspeedf $wrls} KiB/s (\${totalup $wrls})
+\${upspeedgraph $wrls 85,550}
+
+# CPU USAGE
+\${font2}\${color1}CPU USAGE\${font}
+\${color}PERCENTAGE\
+\${alignr}\${color3}\${cpu}%
+\${color}PROCESSES\
+\${alignr}\${color4}\${processes}
+
+\${color0}\${hr}
+
+# CPU GRAPH
+\${font2}\${color1}CPU\
+\${alignr}\${freq_g}GHz\${font}
+\${color4}\${loadgraph 90,550}
+
+# TOP CPU
+\${font2}\${color1}TOP CPU\
+\${alignr}\${color0}PID | NAME | CPU\${font}
+\${color}\${top pid 1}\${goto 105}\${color4}\${top name 1}\${alignr}\${color5}\${top cpu 1}%
+\${color}\${top pid 2}\${goto 105}\${color4}\${top name 2}\${alignr}\${color5}\${top cpu 2}%
+\${color}\${top pid 3}\${goto 105}\${color4}\${top name 3}\${alignr}\${color5}\${top cpu 3}%
+\${color}\${top pid 4}\${goto 105}\${color4}\${top name 4}\${alignr}\${color5}\${top cpu 4}%
+\${color}\${top pid 5}\${goto 105}\${color4}\${top name 5}\${alignr}\${color5}\${top cpu 5}%
+
+\${color0}\${hr}
+
+]];
+CONF
+)"
+    printf '%s' "$conky_right" > "$1/conky_right.lua"
+}
+
+generate_conky() {
+    conky_dir="$HOME/.config/conky"
+    mkdir -pv "$conky_dir" || die "Failed to create $conky_dir"
+
+    generate_conky_left "$conky_dir"
+    generate_conky_right "$conky_dir"
+}
+
+generate_i3() {
+i3_conf="$(cat << CONF
+set \$mod Mod4
+
+# Font
+font pango:$tpfc $tpsz
+
+# Gaps
+gaps inner 24
+gaps top 80
+gaps left 574
+gaps right 574
+gaps bottom 5
+
+# Borders
+
+for_window [class=".*"] border pixel 1
+
+set \$borderFocused   $color8
+set \$borderUnfocused $color8
+
+#                        Border            Background        Foreground        Indicator         Child Border
+client.focused           \$borderFocused    \$borderFocused    \$borderFocused    \$borderFocused    \$borderFocused
+client.unfocused         \$borderUnfocused  \$borderUnfocused  \$borderUnfocused  \$borderUnfocused  \$borderUnfocused
+client.focused_inactive  \$borderUnfocused  \$borderUnfocused  \$borderUnfocused  \$borderUnfocused  \$borderUnfocused
+client.urgent            \$borderFocused    \$borderFocused    \$borderFocused    \$borderFocused    \$borderFocused
+
+# Focus
+focus_follows_mouse no
+
+# Use Mouse+\$mod to drag floating windows to their wanted position
+floating_modifier \$mod
+
+###################
+#### AUTOSTART ####
+###################
+
+# Launch popup terminal on i3 startup
+for_window [instance="popup"] floating enable
+for_window [instance="popup"] move scratchpad
+exec --no-startup-id $tmnl --name popup
+
+# Start conky
+exec_always --no-startup-id \$HOME/.hax/conky.sh
+
+# Start polybar
+exec_always --no-startup-id \$HOME/.hax/polybar.sh
+
+################
+#### ASSIGN ####
+################
+
+# Place these in workspace 9
+assign [class="(?i)firefox"] 9
+assign [class="(?i)chromium"] 9
+assign [class="(?i)surf"] 9
+
+############
+#### i3 ####
+############
+
+# Reload the configuration file
+bindsym \$mod+Shift+c reload
+
+# Restart i3 inplace (preserves your layout/session, can be used to upgrade i3)
+bindsym \$mod+Shift+r restart
+
+# Exit i3 (logs you out of your X session)
+bindsym \$mod+Shift+e exec "i3-nagbar -t warning -m 'You pressed the exit shortcut. Do you really want to exit i3? This will end your X session.' -B 'Yes, exit i3' 'i3-msg exit'"
+
+##################
+#### TERMINAL ####
+##################
+
+# Launch new terminal window
+bindsym \$mod+Return exec --no-startup-id $tmnl
+
+# Toggle popup terminal
+bindsym \$mod+p exec \$HOME/.hax/popup.sh
+
+#################
+#### GENERAL ####
+#################
+
+# Kill focused window
+bindsym \$mod+Shift+q kill
+
+# Lock screen
+bindsym \$mod+Shift+x exec i3lock -c "$color0"
+
+######################
+#### APPLICATIONS ####
+######################
+
+# Launch chrome browser
+bindsym \$mod+Control+c exec --no-startup-id chromium
+
+# Launch chrome browser
+bindsym \$mod+Control+f exec --no-startup-id firefox
+
+# Launch spotify
+bindsym \$mod+Control+s exec --no-startup-id spotify
+
+# Launch surf browser
+bindsym \$mod+Control+u exec --no-startup-id surf
+
+# Launch postman
+bindsym \$mod+Control+p exec --no-startup-id postman
+
+# Launch gimp
+bindsym \$mod+Control+g exec --no-startup-id gimp
+
+# Launch inkscape
+bindsym \$mod+Control+i exec --no-startup-id inkscape
+
+###############
+#### UTILS ####
+###############
+
+# Take screenshot
+bindsym \$mod+Shift+Control+s exec scrot ~/pictures/screenshots/%Y-%m-%d-%T-screenshot.png
+
+# Launch dmenu
+bindsym \$mod+d exec dmenu_run -i -p "Launch:" -nb "$color0" -nf "$color7" -sb "$color0" -sf "$color8" -fn "$(printf '%s' "$tpfc" | tr '[:upper:]' '[:lower:]' | tr -d '[:space:]')-$tpsz"
+
+#################################
+#### WORKSPACES & NAVIGATION ####
+#################################
+
+# Change focus
+bindsym \$mod+h focus left
+bindsym \$mod+j focus down
+bindsym \$mod+k focus up
+bindsym \$mod+l focus right
+
+# Move focused window
+bindsym \$mod+Shift+h move left
+bindsym \$mod+Shift+j move down
+bindsym \$mod+Shift+k move up
+bindsym \$mod+Shift+l move right
+
+# split in horizontal orientation
+bindsym \$mod+b split h
+
+# split in vertical orientation
+bindsym \$mod+v split v
+
+# enter fullscreen mode for the focused container
+bindsym \$mod+f fullscreen toggle
+
+# change container layout (stacked, tabbed, toggle split)
+# bindsym \$mod+s layout stacking
+# bindsym \$mod+w layout tabbed
+bindsym \$mod+e layout toggle split
+
+# change focus between tiling / floating windows
+bindsym \$mod+Shift+space focus mode_toggle
+
+# focus the parent container
+# bindsym \$mod+a focus parent
+
+# focus the child container
+# bindsym \$mod+d focus child
+
+# resize window (you can also use the mouse for that)
+mode "resize" {
+    # These bindings trigger as soon as you enter the resize mode
+
+    # Pressing left will shrink the window’s width.
+    # Pressing right will grow the window’s width.
+    # Pressing up will shrink the window’s height.
+    # Pressing down will grow the window’s height.
+    bindsym j resize shrink width 10 px or 10 ppt
+    bindsym k resize grow height 10 px or 10 ppt
+    bindsym l resize shrink height 10 px or 10 ppt
+    bindsym semicolon resize grow width 10 px or 10 ppt
+
+    # same bindings, but for the arrow keys
+    bindsym Left resize shrink width 10 px or 10 ppt
+    bindsym Down resize grow height 10 px or 10 ppt
+    bindsym Up resize shrink height 10 px or 10 ppt
+    bindsym Right resize grow width 10 px or 10 ppt
+
+    # back to normal: Enter or Escape
+    bindsym Return mode "default" notify-send "Exit resize mode"
+    bindsym Escape mode "default" notify-send "Exit resize mode"
+}
+
+bindsym \$mod+r mode "resize" notify-send "Enter resize mode"
+
+# define names for default workspaces for which we configure key bindings later on.
+set \$ws1 "1"
+set \$ws2 "2"
+set \$ws3 "3"
+set \$ws4 "4"
+set \$ws5 "5"
+set \$ws6 "6"
+set \$ws7 "7"
+set \$ws8 "8"
+set \$ws9 "9"
+
+# switch to workspace
+bindsym \$mod+1 workspace \$ws1
+bindsym \$mod+2 workspace \$ws2
+bindsym \$mod+3 workspace \$ws3
+bindsym \$mod+4 workspace \$ws4
+bindsym \$mod+5 workspace \$ws5
+bindsym \$mod+6 workspace \$ws6
+bindsym \$mod+7 workspace \$ws7
+bindsym \$mod+8 workspace \$ws8
+bindsym \$mod+9 workspace \$ws9
+
+# move focused container to workspace
+bindsym \$mod+Shift+1 move container to workspace \$ws1
+bindsym \$mod+Shift+2 move container to workspace \$ws2
+bindsym \$mod+Shift+3 move container to workspace \$ws3
+bindsym \$mod+Shift+4 move container to workspace \$ws4
+bindsym \$mod+Shift+5 move container to workspace \$ws5
+bindsym \$mod+Shift+6 move container to workspace \$ws6
+bindsym \$mod+Shift+7 move container to workspace \$ws7
+bindsym \$mod+Shift+8 move container to workspace \$ws8
+bindsym \$mod+Shift+9 move container to workspace \$ws9
+
+############################
+#### ACTION KEYBINDINGS ####
+############################
+
+# Resize focused window
+bindsym \$mod+Control+h resize shrink width 1 px or 1 ppt
+bindsym \$mod+Control+j resize shrink height 1 px or 1 ppt
+bindsym \$mod+Control+k resize grow height 1 px or 1 ppt
+bindsym \$mod+Control+l resize grow width 1 px or 1 ppt
+
+# Screen brightness controls
+bindsym XF86MonBrightnessUp exec xbacklight -inc 5
+bindsym XF86MonBrightnessDown exec xbacklight -dec 5
+
+# Volume controls
+bindsym XF86AudioMute exec pamixer -t
+bindsym XF86AudioLowerVolume exec pamixer -d 5
+bindsym XF86AudioRaiseVolume exec pamixer -i 5
+CONF
+)"
+    i3_dir="$HOME/.config/i3"
+    mkdir -pv "$i3_dir" || die "Failed to create $i3_dir"
+    printf '%s' "$i3_conf" > "$i3_dir/config"
+}
+
+helpme() {
+    die "${0##*/}: Generate a zero-config h4xx0r setup" \
+        "Usage: ${0##*/}, ${0##*/} [options]" \
+        "    -k set keyboard layout (defaults to 'se' for Swedish)" \
+        "    -w set wifi card for conky (defaults to 'wlp2s0')" \
+        "    -f set font family (defaults to 'JetBrains Mono')" \
+        "    -s set font size (defaults to '22')" \
+        "    -t set terminal for i3 (defaults to 'kitty')" \
+        "    -l use light theme" \
+        "    -h show this information" \
+        "" \
+        "Example: ${0##*/} -k \"en\" -w \"wlan0\" -f \"Fira Code\" -s \"14\" -t \"st\" -l"
+}
+
+args() {
+    mode="dark"
+    kbdl="se"
+    wrls="wlp2s0"
+    tpfc="JetBrains Mono"
+    tpsz="22"
+    tmnl="kitty"
+
+    while getopts k:w:f:s:t:lh opt; do case $opt in
+        k) kbdl=$OPTARG ;;
+        w) wrls=$OPTARG ;;
+        f) tpfc=$OPTARG ;;
+        s) tpsz=$OPTARG ;;
+        t) tmnl=$OPTARG ;;
+        l) mode="light" ;;
+        h) helpme ;;
+        *) ;;
+    esac; done
+
+    if [ "$mode" = "dark" ]; then
+        pal -m -d
+    else
+        pal -m
+    fi
+
+    . ~/.cache/pal/colors
+
+    generate_xinit
+    generate_xresources
+    generate_polybar
+    generate_conky
+    generate_i3
+
+    [ "$tmnl" = "kitty" ] && generate_kitty
+
+    xrdb -merge "$HOME/.Xresources"
+    i3-msg restart >/dev/null
+}
+
+main() {
+    command -v i3 >/dev/null || die "'i3wm' is not installed"
+
+    command -v polybar >/dev/null || die "'polybar' is not installed"
+
+    command -v conky >/dev/null || die "'conky' is not installed"
+
+    command -v pal >/dev/null || {
+        die "'pal' is not installed" \
+            "Please install it" \
+            "https://github.com/fehawen/pal"
+    }
+
+    [ -z "$PAL_PATH" ] && {
+        die "PAL_PATH is not set."
+    }
+
+    args "$@"
+}
+
+main "$@"
