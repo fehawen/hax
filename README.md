@@ -7,7 +7,7 @@
 
 # Hax
 
-Generate a zero-config h4xx0r 1337 \ >_< / 0Hh y3h setup.
+Generate a zero-config Hacky Hackpecker setup.
 
 ## Install
 
@@ -54,4 +54,4 @@ With some fiddling you'll be able to adjust the conky, i3 and polybar config det
 
 > "This is a joke, right?"
 
-Yes, of course it is.
+Not necessarily. Although I lean towards [simpler setups](https://www.reddit.com/r/unixporn/comments/hgtrf8/sowm_emerald/), this type of visually hectic setups apparently float some people's boats. So I thought I'd put together something they might want to use.
