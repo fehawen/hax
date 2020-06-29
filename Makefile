@@ -11,3 +11,4 @@ install:
 
 uninstall:
 	@rm -fv $(DESTDIR)$(PREFIX)/bin/hax
+	@rm -rfv $(DESTDIR)$(PREFIX)/.hax
