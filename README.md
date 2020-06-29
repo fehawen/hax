@@ -25,13 +25,13 @@ Once installed, run `hax -h` for details on how to use it.
 
 Or run it with the defaults with `hax`, but read the notes below first.
 
-**WARNING** When ran, `hax` will overwrite the files listed below, so you might want to back those up first. Otherwise you might hate me for the rest of your life.
+**BE AWARE!** When ran, `hax` will overwrite the files listed below, so you might want to back those up first. Otherwise you might hate me for the rest of your life.
 
-    * ~/.config/polybar/config
-    * ~/.config/i3/config
-    * ~/.config/kitty/kitty.conf (unless another terminal's specified in the options)
-    * ~/.xinitrc
-    * ~/.Xresources
+* ~/.config/polybar/config
+* ~/.config/i3/config
+* ~/.config/kitty/kitty.conf (unless another terminal's specified in the options)
+* ~/.xinitrc
+* ~/.Xresources
 
 ### Terminal
 
