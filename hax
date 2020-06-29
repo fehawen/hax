@@ -413,8 +413,8 @@ conky.text = [[
 
 \${color0}\${hr}
 
-# CPU GRAPH
-\${font2}\${color1}CPU\
+# CPU FREQ/GRAPH
+\${font2}\${color1}CPU FREQ\
 \${alignr}\${freq_g}GHz\${font}
 \${color4}\${loadgraph 90,550}
 
