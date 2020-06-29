@@ -25,6 +25,25 @@ Once installed, run `hax -h` for details on how to use it.
 
 Or run it with the defaults with `hax`, but read the notes below first.
 
+**WARNING** When ran, `hax` will overwrite the files listed below, so you might want to back those up first. Otherwise you might hate me for the rest of your life.
+
+    * ~/.config/polybar/config
+    * ~/.config/i3/config
+    * ~/.config/kitty/kitty.conf (unless another terminal's specified in the options)
+    * ~/.xinitrc
+    * ~/.Xresources
+
+### Terminal
+
+The default terminal used by `hax` is *kitty*, for which a config is generated.
+You can easily specify another terminal of your choice instead.
+
+```sh
+# Use st - suckless simple terminal
+hax -t "st"
+```
+Note however that *kitty* is currently the only terminal for which a config is generated, meaning that you'll have to either edit the script, or create the config manually, if you decide to use another terminal. This is easily done though.
+
 ## Pal
 
 You'll need `pal` as this is where we get the colors from. It also allows us to change colors on the fly. Head on over [here](https://github.com/fehawen/pal) to get `pal` up and running, it's done in a heartbeat.
