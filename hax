@@ -692,7 +692,7 @@ CONF
 }
 
 helpme() {
-    die "${0##*/}: Generate a zero-config h4xx0r setup" \
+    die "${0##*/}: Generate a zero-config Hacky Hackpecker setup" \
         "Usage: ${0##*/}, ${0##*/} [options]" \
         "    -k set keyboard layout (defaults to 'se' for Swedish)" \
         "    -w set wifi card for conky (defaults to 'wlp2s0')" \
