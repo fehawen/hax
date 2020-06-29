@@ -5,7 +5,7 @@
     <br>
 </h1>
 
-# Hax
+# hax
 
 Generate a zero-config Hacky Hackpecker setup.
 
@@ -25,7 +25,7 @@ Once installed, run `hax -h` for details on how to use it.
 
 Or run it with the defaults with `hax`, but read the notes below first.
 
-**BE AWARE!** When ran, `hax` will overwrite the files listed below, so you might want to back those up first. Otherwise you might hate me for the rest of your life.
+**:warning: WARNING** When ran, `hax` will overwrite the files listed below, so you might want to back those up first. Otherwise you might hate me for the rest of your life.
 
 * ~/.config/polybar/config
 * ~/.config/i3/config
