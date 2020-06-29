@@ -2,9 +2,18 @@
 
 # shellcheck disable=SC1090,SC2154
 
-die() {
+log() {
     printf '\033[1m%s\033[m\n' "$@"
+    printf '\n'
+}
+
+die() {
+    log "$@"
     exit 1
+}
+
+exists() {
+    command -v "$1" >/dev/null
 }
 
 parse_color() {
@@ -700,9 +709,11 @@ helpme() {
         "    -s set font size (defaults to '22')" \
         "    -t set terminal for i3 (defaults to 'kitty')" \
         "    -l use light theme" \
+        "    -p specify 'pal' palette to use" \
+        "    -a list available 'pal' palettes" \
         "    -h show this information" \
         "" \
-        "Example: ${0##*/} -k \"en\" -w \"wlan0\" -f \"Fira Code\" -s \"14\" -t \"st\" -l"
+        "Example: ${0##*/} -k \"en\" -w \"wlan0\" -f \"Fira Code\" -s \"14\" -t \"st\" -p \"stingray\""
 }
 
 args() {
@@ -713,21 +724,35 @@ args() {
     tpsz="22"
     tmnl="kitty"
 
-    while getopts k:w:f:s:t:lh opt; do case $opt in
+    while getopts k:w:f:s:t:p:lah opt; do case $opt in
         k) kbdl=$OPTARG ;;
         w) wrls=$OPTARG ;;
         f) tpfc=$OPTARG ;;
         s) tpsz=$OPTARG ;;
         t) tmnl=$OPTARG ;;
+        p) palt=$OPTARG ;;
         l) mode="light" ;;
-        h) helpme ;;
-        *) ;;
+        a) alts=1 ;;
+        *) helpme ;;
     esac; done
 
+    [ "$alts" ] && {
+        pal -l
+        exit 1
+    }
+
     if [ "$mode" = "dark" ]; then
-        pal -m -d
+        if [ "$palt" ]; then
+            pal -m -d -s "$palt"
+        else
+            pal -m -d
+        fi
     else
-        pal -m
+        if [ "$palt" ]; then
+            pal -m -s "$palt"
+        else
+            pal -m
+        fi
     fi
 
     . ~/.cache/pal/colors
@@ -741,24 +766,47 @@ args() {
     [ "$tmnl" = "kitty" ] && generate_kitty
 
     xrdb -merge "$HOME/.Xresources"
-    i3-msg restart >/dev/null
+
+    if [ "$(pgrep -x i3)" ]; then
+        i3-msg restart >/dev/null
+    else
+        log "Warning: 'i3' is not running." \
+            "Reboot or restart 'X' or start 'i3' for changes to take effect."
+    fi
 }
 
 main() {
-    command -v i3 >/dev/null || die "'i3wm' is not installed"
+    exists "i3" || die "'i3wm' is not installed."
+    exists "polybar" || die "'polybar' is not installed."
+    exists "conky" || die "'conky' is not installed."
 
-    command -v polybar >/dev/null || die "'polybar' is not installed"
-
-    command -v conky >/dev/null || die "'conky' is not installed"
-
-    command -v pal >/dev/null || {
-        die "'pal' is not installed" \
-            "Please install it" \
-            "https://github.com/fehawen/pal"
+    exists "pal" || {
+        die "'pal' is not installed." \
+            "Install it from: https://github.com/fehawen/pal"
     }
 
     [ -z "$PAL_PATH" ] && {
-        die "PAL_PATH is not set."
+        die "PAL_PATH is not set." \
+            "See instructions at:" \
+            "https://github.com/fehawen/pal"
+    }
+
+    exists "pamixer" || {
+        log "Warning: 'pamixer' is not installed." \
+            "'conky' needs it for volume details." \
+            "Either install it or change the config to use something else."
+    }
+
+    exists "xbacklight" || {
+        log "Warning: 'xbacklight' is not installed." \
+            "'conky' needs it for screen brightness details." \
+            "Either install it or change the config to use something else."
+    }
+
+    exists "pacman" || {
+        log "Warning: 'pacman' is not installed." \
+            "'conky' and '~/.hax/pac.sh' needs it for package details." \
+            "Change the config and scripts to use your package manager instead."
     }
 
     args "$@"
