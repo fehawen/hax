@@ -29,7 +29,7 @@ Or run it with the defaults with `hax`, but read the notes below first.
 
 * ~/.config/polybar/config
 * ~/.config/i3/config
-* ~/.config/kitty/kitty.conf (unless another terminal's specified in the options)
+* ~/.config/kitty/kitty.conf *unless another terminal's specified in the options*
 * ~/.xinitrc
 * ~/.Xresources
 
