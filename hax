@@ -700,7 +700,7 @@ CONF
     printf '%s' "$i3_conf" > "$i3_dir/config"
 }
 
-helpme() {
+usage() {
     die "${0##*/}: Generate a zero-config Hacky Hackpecker setup" \
         "Usage: ${0##*/}, ${0##*/} [options]" \
         "    -k set keyboard layout (defaults to 'se' for Swedish)" \
@@ -733,7 +733,7 @@ args() {
         p) palt=$OPTARG ;;
         l) mode="light" ;;
         a) alts=1 ;;
-        *) helpme ;;
+        *) usage ;;
     esac; done
 
     [ "$alts" ] && {
