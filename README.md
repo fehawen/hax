@@ -7,7 +7,7 @@
 
 # hax
 
-Generate a zero-config Hacky Hackpecker setup.
+Generate a zero-config Hacky Hackpecker setup using `i3-gaps`, `conky` and `polybar`.
 
 ## Install
 
@@ -54,11 +54,13 @@ The font used in the screenshots is `JetBrains Mono` which you'll find [here](ht
 
 ## Other dependencies
 
-* i3wm
+* i3-gaps
 * polybar
 * conky
 * xsetroot
 * pacman (Arch Linux) (or change the scripts & commands to match your packgage manager)
+* pamixer (for i3 volume control and conky volume display)
+* xbacklight (for i3 brightness control and conky brightness display)
 * ... Perhaps something else I've forgotten to mention
 
 ## Notes
