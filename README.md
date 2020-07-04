@@ -57,10 +57,10 @@ The font used in the screenshots is `JetBrains Mono` which you'll find [here](ht
 * i3-gaps
 * polybar
 * conky
-* xsetroot
-* pacman (Arch Linux) (or change the scripts & commands to match your packgage manager)
-* pamixer (for i3 volume control and conky volume display)
-* xbacklight (for i3 brightness control and conky brightness display)
+* xsetroot (used by `pal` to set background color)
+* pacman (Arch Linux) (for conky package manager details)
+* pamixer (for i3 volume control and conky volume details)
+* xbacklight (for i3 brightness control and conky brightness details)
 * ... Perhaps something else I've forgotten to mention
 
 ## Notes
