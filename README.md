@@ -1,6 +1,6 @@
 <h1 align="center">
     <a href="https://github.com/fehawen/hax">
-        <img alt="scrot" src="https://user-images.githubusercontent.com/36552788/85957099-d8ac0900-b98a-11ea-98ae-b000d27a206a.png" width="960">
+        <img alt="scrot" src="https://user-images.githubusercontent.com/36552788/86862147-ec611900-c0c8-11ea-977c-abf3ce510a79.png" width="960">
     </a>
     <br>
 </h1>
