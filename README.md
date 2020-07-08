@@ -44,10 +44,6 @@ hax -t "st"
 ```
 Note however that *kitty* is currently the only terminal for which a config is generated, meaning that you'll have to either edit the script, or create the config manually, if you decide to use another terminal. This is easily done though.
 
-## Pal
-
-You'll need `pal` as this is where we get the colors from. It also allows us to change colors on the fly. Head on over [here](https://github.com/fehawen/pal) to get `pal` up and running, it's done in a heartbeat.
-
 ## Font
 
 The font used in the screenshots is `JetBrains Mono` which you'll find [here](https://www.jetbrains.com/lp/mono/)
@@ -57,7 +53,7 @@ The font used in the screenshots is `JetBrains Mono` which you'll find [here](ht
 * i3-gaps
 * polybar
 * conky
-* xsetroot (used by `pal` to set background color)
+* xsetroot (used by `hax` and `~/.xinitrc` to set background color)
 * pacman (Arch Linux) (for conky package manager details)
 * pamixer (for i3 volume control and conky volume details)
 * xbacklight (for i3 brightness control and conky brightness details)
