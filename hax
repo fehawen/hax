@@ -708,54 +708,50 @@ usage() {
         "    -f set font family (defaults to 'JetBrains Mono')" \
         "    -s set font size (defaults to '22')" \
         "    -t set terminal for i3 (defaults to 'kitty')" \
-        "    -l use light theme" \
-        "    -p specify 'pal' palette to use" \
-        "    -a list available 'pal' palettes" \
         "    -h show this information" \
         "" \
-        "Example: ${0##*/} -k \"en\" -w \"wlan0\" -f \"Fira Code\" -s \"14\" -t \"st\" -p \"stingray\""
+        "Example: ${0##*/} -k \"en\" -w \"wlan0\" -f \"Fira Code\" -s \"14\" -t \"st\""
 }
 
 args() {
-    mode="dark"
     kbdl="se"
     wrls="wlp2s0"
     tpfc="JetBrains Mono"
     tpsz="22"
     tmnl="kitty"
 
-    while getopts k:w:f:s:t:p:lah opt; do case $opt in
+    while getopts k:w:f:s:t:h opt; do case $opt in
         k) kbdl=$OPTARG ;;
         w) wrls=$OPTARG ;;
         f) tpfc=$OPTARG ;;
         s) tpsz=$OPTARG ;;
         t) tmnl=$OPTARG ;;
-        p) palt=$OPTARG ;;
-        l) mode="light" ;;
-        a) alts=1 ;;
         *) usage ;;
     esac; done
 
-    [ "$alts" ] && {
-        pal -l
-        exit 1
-    }
+    #
+    # NOTE:
+    # To reduce the number of dependencies
+    # colorscheme needs to be changed manually
+    # from now on.
+    #
 
-    if [ "$mode" = "dark" ]; then
-        if [ "$palt" ]; then
-            pal -m -d -s "$palt"
-        else
-            pal -m -d
-        fi
-    else
-        if [ "$palt" ]; then
-            pal -m -s "$palt"
-        else
-            pal -m
-        fi
-    fi
-
-    . ~/.cache/pal/colors
+    color0="#0c0618"
+    color1="#6D55D4"
+    color2="#A115A4"
+    color3="#D12ECB"
+    color4="#9763E5"
+    color5="#4ABEE4"
+    color6="#A39AF0"
+    color7="#e3cde6"
+    color8="#9e8fa1"
+    color9="#6D55D4"
+    color10="#A115A4"
+    color11="#D12ECB"
+    color12="#9763E5"
+    color13="#4ABEE4"
+    color14="#A39AF0"
+    color15="#e3cde6"
 
     generate_xinit
     generate_xresources
@@ -765,6 +761,7 @@ args() {
 
     [ "$tmnl" = "kitty" ] && generate_kitty
 
+    xsetroot -solid "$color0"
     xrdb -merge "$HOME/.Xresources"
 
     if [ "$(pgrep -x i3)" ]; then
@@ -776,19 +773,13 @@ args() {
 }
 
 main() {
-    exists "i3" || die "'i3wm' is not installed."
+    exists "i3" || die "'i3wm' (i3-gaps) is not installed."
     exists "polybar" || die "'polybar' is not installed."
     exists "conky" || die "'conky' is not installed."
 
-    exists "pal" || {
-        die "'pal' is not installed." \
-            "Install it from: https://github.com/fehawen/pal"
-    }
-
-    [ -z "$PAL_PATH" ] && {
-        die "PAL_PATH is not set." \
-            "See instructions at:" \
-            "https://github.com/fehawen/pal"
+    exists "xsetroot" || {
+        log "Warning: 'xsetroot' is not installed." \
+            "'hax' and '~/.xinitrc' need it to set background color."
     }
 
     exists "pamixer" || {
